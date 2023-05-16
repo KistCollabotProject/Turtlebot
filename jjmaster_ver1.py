@@ -113,7 +113,7 @@ class stool:
         #rospy.loginfo(self.bookcase)
 
     def callback3(self, msg):
-        self.ac = msg.data
+        self.ac = msg.data #adult child
 
 
 
