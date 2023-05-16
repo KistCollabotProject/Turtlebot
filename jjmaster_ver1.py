@@ -29,12 +29,17 @@ class stool:
     def __init__(self):
 
         self.bookcase = None
+        self.ac = None
 
         self.subscriber1 = rospy.Subscriber(
             name="sceinaro_num", data_class=String, callback=self.callback1)
         
         self.subscriber2 = rospy.Subscriber(
             name="bookcase_num", data_class=String, callback=self.callback2)
+        
+        self.subscriber3 = rospy.Subscriber(
+            name="ac_information", data_class=String, callback=self.callback3)
+
 
         rospy.on_shutdown(self.shutdown)
         self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=5)
@@ -83,10 +88,21 @@ class stool:
                 rospy.loginfo("Something is error with book num or sceinaro 1")
 
         elif msg.data == "sceinaro reset":
+                
                 rospy.loginfo("## Reset the all sceinaro and input")
-                stool.turtlebot3_move=True   
-                self.movebase_client(0,0,0) # 원래 turtlebot이 있었던 좌표
-                stool.turtlebot3_move=False
+
+                if self.ac == "adult":
+                    stool.turtlebot3_move=True   
+                    self.movebase_client(0,0,0) # adult 일때 reset 좌표
+                    stool.turtlebot3_move=False
+
+                elif self.ac == "child":
+                    stool.turtlebot3_move=True   
+                    self.movebase_client(0,0,0) # child 일때 reset 좌표
+                    stool.turtlebot3_move=False
+                
+                else:
+                    rospy.loginfo("Something is error with reset or ac_information")
 
         else: #예상컨데 data = None
             rospy.loginfo("Something is error with subscribing sceinaro")
@@ -95,6 +111,10 @@ class stool:
     def callback2(self,msg):
         self.bookcase = msg.data
         #rospy.loginfo(self.bookcase)
+
+    def callback3(self, msg):
+        self.ac = msg.data
+
 
 
     def stool_pos(self):
